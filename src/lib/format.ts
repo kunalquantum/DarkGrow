@@ -1,26 +1,33 @@
 import {
-  formatDistanceToNow,
+  differenceInCalendarDays,
   format,
+  formatDistanceToNow,
   isToday,
   isYesterday,
-  isThisYear,
-} from "date-fns";
+} from 'date-fns'
 
-export function relativeTime(date: string | Date): string {
-  return formatDistanceToNow(new Date(date), { addSuffix: true });
+export function relativeTime(isoDate: string): string {
+  return formatDistanceToNow(new Date(isoDate), { addSuffix: true })
 }
 
-export function friendlyDate(date: string | Date): string {
-  const d = new Date(date);
-  if (isToday(d)) return "Today";
-  if (isYesterday(d)) return "Yesterday";
-  return format(d, isThisYear(d) ? "MMM d" : "MMM d, yyyy");
+export function friendlyDate(isoDate: string): string {
+  const date = new Date(isoDate)
+  if (isToday(date)) return 'Today'
+  if (isYesterday(date)) return 'Yesterday'
+  return format(date, 'MMM d, yyyy')
 }
 
-export function groupLabel(date: string | Date): string {
-  return format(new Date(date), "MMMM yyyy");
+export function groupLabel(isoDate: string): string {
+  const date = new Date(isoDate)
+  const diff = differenceInCalendarDays(new Date(), date)
+
+  if (diff <= 0) return 'Today'
+  if (diff === 1) return 'Yesterday'
+  if (diff < 7) return 'This week'
+  if (diff < 30) return 'This month'
+  return format(date, 'MMMM yyyy')
 }
 
-export function dayLabel(date: string | Date): string {
-  return format(new Date(date), "EEEE, MMM d");
+export function dayLabel(isoDate: string): string {
+  return format(new Date(isoDate), 'EEEE, MMMM d')
 }

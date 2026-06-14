@@ -1,43 +1,40 @@
-import { relativeTime } from "@/lib/format";
-import type { ActivityHistoryEntry } from "@/lib/types/database";
+import { History } from 'lucide-react'
+import { useLifeOsStore } from '@/store/lifeOsStore'
+import { TYPE_META } from '@/lib/life-object-meta'
+import { relativeTime } from '@/lib/format'
 
-const ACTION_LABELS: Record<string, string> = {
-  created: "Created",
-  updated: "Updated",
-  status_changed: "Status changed",
-  progress_updated: "Progress updated",
-  paused: "Paused",
-  resumed: "Resumed",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  archived: "Archived",
-  relationship_added: "Linked",
-  relationship_removed: "Unlinked",
-  deleted: "Deleted",
-};
+export function RecentActivity() {
+  const activityHistory = useLifeOsStore((s) => s.activityHistory)
+  const lifeObjects = useLifeOsStore((s) => s.lifeObjects)
+  const recent = activityHistory.slice(0, 8)
 
-export function RecentActivity({ items }: { items: ActivityHistoryEntry[] }) {
-  if (items.length === 0) {
+  if (recent.length === 0) {
     return (
-      <p className="py-2 text-sm text-muted-foreground">
-        Your activity will show up here.
+      <p className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+        No activity yet.
       </p>
-    );
+    )
   }
 
   return (
-    <ul className="space-y-3">
-      {items.map((entry) => (
-        <li key={entry.id} className="flex items-start gap-3 text-sm">
-          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/40" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-foreground/90">
-              {entry.summary ?? ACTION_LABELS[entry.action] ?? entry.action}
-            </p>
-            <p className="text-xs text-muted-foreground">{relativeTime(entry.created_at)}</p>
+    <div className="flex flex-col gap-2">
+      {recent.map((entry) => {
+        const object = lifeObjects.find((o) => o.id === entry.object_id)
+        const meta = object ? TYPE_META[object.type] : null
+        const Icon = meta?.icon ?? History
+
+        return (
+          <div key={entry.id} className="flex items-start gap-3 rounded-lg border border-border bg-card p-3">
+            <div className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-muted ${meta?.color ?? 'text-muted-foreground'}`}>
+              <Icon className="size-3.5" />
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="truncate text-sm">{entry.description}</p>
+              <p className="text-xs text-muted-foreground">{relativeTime(entry.created_at)}</p>
+            </div>
           </div>
-        </li>
-      ))}
-    </ul>
-  );
+        )
+      })}
+    </div>
+  )
 }

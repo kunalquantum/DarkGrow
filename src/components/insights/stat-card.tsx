@@ -1,26 +1,26 @@
-import { cn } from "@/lib/utils";
+import type { LucideIcon } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-export function StatCard({
-  label,
-  value,
-  suffix,
-  hint,
-  className,
-}: {
-  label: string;
-  value: string | number;
-  suffix?: string;
-  hint?: string;
-  className?: string;
-}) {
+type StatCardProps = {
+  label: string
+  value: string
+  description?: string
+  icon?: LucideIcon
+}
+
+export function StatCard({ label, value, description, icon: Icon }: StatCardProps) {
   return (
-    <div className={cn("rounded-2xl border border-border/60 bg-card p-4", className)}>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1.5 text-2xl font-semibold tracking-tight">
-        {value}
-        {suffix && <span className="text-sm font-normal text-muted-foreground">{suffix}</span>}
-      </p>
-      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
-    </div>
-  );
+    <Card>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {label}
+        </CardTitle>
+        {Icon ? <Icon className="size-4 text-muted-foreground" /> : null}
+      </CardHeader>
+      <CardContent>
+        <p className="text-2xl font-semibold">{value}</p>
+        {description ? <p className="mt-1 text-xs text-muted-foreground">{description}</p> : null}
+      </CardContent>
+    </Card>
+  )
 }

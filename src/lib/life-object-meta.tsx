@@ -1,44 +1,62 @@
 import {
-  Lightbulb,
-  Rocket,
-  Target,
+  Archive,
   BookOpen,
-  GitBranch,
-  Sparkles,
-  Trophy,
-  Calendar,
-  Repeat,
-  StickyNote,
+  CalendarDays,
+  CheckCircle2,
+  Circle,
+  FolderKanban,
+  GitFork,
+  Lightbulb,
   type LucideIcon,
-} from "lucide-react";
-import type { LifeObjectStatus, LifeObjectType } from "@/lib/types/database";
+  PauseCircle,
+  PlayCircle,
+  Repeat,
+  Sparkles,
+  StickyNote,
+  Target,
+  Trophy,
+  XCircle,
+} from 'lucide-react'
+import type { LifeObjectStatus, LifeObjectType } from './types'
 
-export const TYPE_META: Record<LifeObjectType, { label: string; icon: LucideIcon }> = {
-  idea: { label: "Idea", icon: Lightbulb },
-  project: { label: "Project", icon: Rocket },
-  goal: { label: "Goal", icon: Target },
-  learning: { label: "Learning", icon: BookOpen },
-  decision: { label: "Decision", icon: GitBranch },
-  reflection: { label: "Reflection", icon: Sparkles },
-  achievement: { label: "Achievement", icon: Trophy },
-  event: { label: "Event", icon: Calendar },
-  habit: { label: "Habit", icon: Repeat },
-  note: { label: "Note", icon: StickyNote },
-};
+type TypeMeta = {
+  label: string
+  icon: LucideIcon
+  color: string
+}
 
-export const STATUS_META: Record<LifeObjectStatus, { label: string; className: string }> = {
-  new: { label: "New", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-  active: { label: "Active", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  paused: { label: "Paused", className: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  completed: { label: "Completed", className: "bg-violet-500/10 text-violet-600 dark:text-violet-400" },
-  cancelled: { label: "Cancelled", className: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
-  archived: { label: "Archived", className: "bg-zinc-500/10 text-zinc-500 dark:text-zinc-400" },
-};
+type StatusMeta = {
+  label: string
+  icon: LucideIcon
+  color: string
+}
+
+export const TYPE_META: Record<LifeObjectType, TypeMeta> = {
+  idea: { label: 'Idea', icon: Lightbulb, color: 'text-amber-400' },
+  project: { label: 'Project', icon: FolderKanban, color: 'text-sky-400' },
+  goal: { label: 'Goal', icon: Target, color: 'text-rose-400' },
+  learning: { label: 'Learning', icon: BookOpen, color: 'text-emerald-400' },
+  decision: { label: 'Decision', icon: GitFork, color: 'text-violet-400' },
+  reflection: { label: 'Reflection', icon: Sparkles, color: 'text-fuchsia-400' },
+  achievement: { label: 'Achievement', icon: Trophy, color: 'text-yellow-400' },
+  event: { label: 'Event', icon: CalendarDays, color: 'text-cyan-400' },
+  habit: { label: 'Habit', icon: Repeat, color: 'text-lime-400' },
+  note: { label: 'Note', icon: StickyNote, color: 'text-slate-400' },
+}
+
+export const STATUS_META: Record<LifeObjectStatus, StatusMeta> = {
+  new: { label: 'New', icon: Circle, color: 'text-muted-foreground' },
+  active: { label: 'Active', icon: PlayCircle, color: 'text-success' },
+  paused: { label: 'Paused', icon: PauseCircle, color: 'text-warning' },
+  completed: { label: 'Completed', icon: CheckCircle2, color: 'text-success' },
+  cancelled: { label: 'Cancelled', icon: XCircle, color: 'text-danger' },
+  archived: { label: 'Archived', icon: Archive, color: 'text-muted-foreground' },
+}
 
 export function typeLabel(type: LifeObjectType): string {
-  return TYPE_META[type]?.label ?? type;
+  return TYPE_META[type].label
 }
 
 export function statusLabel(status: LifeObjectStatus): string {
-  return STATUS_META[status]?.label ?? status;
+  return STATUS_META[status].label
 }

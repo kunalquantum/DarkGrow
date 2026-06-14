@@ -1,0 +1,34 @@
+import { QuickCapture } from '@/components/home/quick-capture'
+import { OpenLoops } from '@/components/home/open-loops'
+import { RecentActivity } from '@/components/home/recent-activity'
+import { DailyReflection } from '@/components/home/daily-reflection'
+
+export default function HomePage() {
+  return (
+    <div className="flex flex-col gap-8">
+      <header>
+        <h1 className="text-2xl font-semibold">Life OS</h1>
+        <p className="text-sm text-muted-foreground">Capture everything. Forget nothing.</p>
+      </header>
+
+      <section>
+        <QuickCapture />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground">Open loops</h2>
+        <OpenLoops />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground">Recent activity</h2>
+        <RecentActivity />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground">Daily reflection</h2>
+        <DailyReflection />
+      </section>
+    </div>
+  )
+}
