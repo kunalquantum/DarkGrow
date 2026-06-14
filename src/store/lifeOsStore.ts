@@ -1,13 +1,17 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type {
-  ActivityHistoryEntry,
-  DailyReflection,
-  LifeObject,
-  LifeObjectRelationship,
-  LifeObjectStatus,
-  LifeObjectType,
-  RelationshipType,
+import {
+  ENERGY_CATEGORIES,
+  ENERGY_CATEGORY_BUDGET,
+  type ActivityHistoryEntry,
+  type DailyEnergyLog,
+  type DailyReflection,
+  type EnergyCategory,
+  type LifeObject,
+  type LifeObjectRelationship,
+  type LifeObjectStatus,
+  type LifeObjectType,
+  type RelationshipType,
 } from '@/lib/types'
 
 function createId(): string {
@@ -36,11 +40,19 @@ export type NewRelationshipInput = {
   relationship_type: RelationshipType
 }
 
+function emptyEnergySpent(): Record<EnergyCategory, number> {
+  return Object.fromEntries(ENERGY_CATEGORIES.map((category) => [category, 0])) as Record<
+    EnergyCategory,
+    number
+  >
+}
+
 type LifeOsState = {
   lifeObjects: LifeObject[]
   relationships: LifeObjectRelationship[]
   activityHistory: ActivityHistoryEntry[]
   dailyReflections: DailyReflection[]
+  dailyEnergyLogs: DailyEnergyLog[]
 
   quickCapture: (title: string, type?: LifeObjectType) => LifeObject
   createLifeObject: (input: NewLifeObjectInput) => LifeObject
@@ -52,6 +64,9 @@ type LifeOsState = {
 
   getTodaysReflection: () => DailyReflection | undefined
   saveTodaysReflection: (input: Partial<Pick<DailyReflection, 'highlight' | 'lowlight' | 'gratitude' | 'notes'>>) => void
+
+  getTodaysEnergy: () => DailyEnergyLog | undefined
+  setEnergySpent: (category: EnergyCategory, amount: number) => void
 }
 
 function logActivity(
@@ -77,6 +92,7 @@ export const useLifeOsStore = create<LifeOsState>()(
       relationships: [],
       activityHistory: [],
       dailyReflections: [],
+      dailyEnergyLogs: [],
 
       quickCapture: (title, type = 'note') => {
         return get().createLifeObject({ type, title })
@@ -240,6 +256,40 @@ export const useLifeOsStore = create<LifeOsState>()(
           }
 
           return { dailyReflections: [created, ...state.dailyReflections] }
+        })
+      },
+
+      getTodaysEnergy: () => {
+        return get().dailyEnergyLogs.find((log) => log.date === todayKey())
+      },
+
+      setEnergySpent: (category, amount) => {
+        set((state) => {
+          const now = new Date().toISOString()
+          const date = todayKey()
+          const clamped = Math.min(ENERGY_CATEGORY_BUDGET, Math.max(0, Math.round(amount)))
+          const existing = state.dailyEnergyLogs.find((log) => log.date === date)
+
+          if (existing) {
+            const updated: DailyEnergyLog = {
+              ...existing,
+              spent: { ...existing.spent, [category]: clamped },
+              updated_at: now,
+            }
+            return {
+              dailyEnergyLogs: state.dailyEnergyLogs.map((log) => (log.date === date ? updated : log)),
+            }
+          }
+
+          const created: DailyEnergyLog = {
+            id: createId(),
+            date,
+            spent: { ...emptyEnergySpent(), [category]: clamped },
+            created_at: now,
+            updated_at: now,
+          }
+
+          return { dailyEnergyLogs: [created, ...state.dailyEnergyLogs] }
         })
       },
     }),

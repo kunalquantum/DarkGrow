@@ -82,3 +82,22 @@ export type DailyReflection = {
   created_at: string
   updated_at: string
 }
+
+export const ENERGY_CATEGORIES = ['mental', 'physical', 'social', 'creative', 'emotional'] as const
+
+export type EnergyCategory = (typeof ENERGY_CATEGORIES)[number]
+
+/** Coins each category can hold per day. */
+export const ENERGY_CATEGORY_BUDGET = 20
+
+/** Total daily energy currency, spread across all categories. */
+export const DAILY_ENERGY_BUDGET = ENERGY_CATEGORIES.length * ENERGY_CATEGORY_BUDGET
+
+export type DailyEnergyLog = {
+  id: string
+  date: string
+  spent: Record<EnergyCategory, number>
+  created_at: string
+  updated_at: string
+}
+

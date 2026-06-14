@@ -2,6 +2,7 @@ import { QuickCapture } from '@/components/home/quick-capture'
 import { OpenLoops } from '@/components/home/open-loops'
 import { RecentActivity } from '@/components/home/recent-activity'
 import { DailyReflection } from '@/components/home/daily-reflection'
+import { EnergyTracker } from '@/components/home/energy-tracker'
 
 export default function HomePage() {
   return (
@@ -13,6 +14,11 @@ export default function HomePage() {
 
       <section>
         <QuickCapture />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-semibold text-muted-foreground">Energy coins</h2>
+        <EnergyTracker />
       </section>
 
       <section className="flex flex-col gap-3">

@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, format } from 'date-fns'
-import type { ActivityHistoryEntry, LifeObject, LifeObjectRelationship } from './types'
+import { ENERGY_CATEGORIES, type ActivityHistoryEntry, type DailyEnergyLog, type EnergyCategory, type LifeObject, type LifeObjectRelationship } from './types'
 
 export type TopicCount = {
   tag: string
@@ -153,4 +153,17 @@ export function buildInsightsSummary(
     mostProductiveDays: mostProductiveDays(activityHistory),
     lifeMomentum: lifeMomentum(activityHistory),
   }
+}
+
+export type EnergyCategoryAverage = {
+  category: EnergyCategory
+  average: number
+}
+
+/** Average daily coins spent per energy category, highest first — where life currency tends to go. */
+export function energyBreakdown(logs: DailyEnergyLog[]): EnergyCategoryAverage[] {
+  return ENERGY_CATEGORIES.map((category) => {
+    const total = logs.reduce((sum, log) => sum + log.spent[category], 0)
+    return { category, average: logs.length > 0 ? total / logs.length : 0 }
+  }).sort((a, b) => b.average - a.average)
 }
