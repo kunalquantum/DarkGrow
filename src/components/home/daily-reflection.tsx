@@ -5,8 +5,10 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useLifeOsStore } from '@/store/lifeOsStore'
 import { DEFAULT_MOOD } from '@/lib/mood-meta'
+import { DEFAULT_LIFE_PATTERN, type LifePatternDimension, type LifePatternType } from '@/lib/types'
 import { MoodSlider } from '@/components/home/mood-slider'
 import { EmotionTags } from '@/components/home/emotion-tags'
+import { LifePattern } from '@/components/home/life-pattern'
 
 export function DailyReflection() {
   const reflection = useLifeOsStore((s) => s.dailyReflections.find((r) => r.date === new Date().toISOString().slice(0, 10)))
@@ -14,6 +16,8 @@ export function DailyReflection() {
 
   const [mood, setMood] = useState(DEFAULT_MOOD)
   const [emotions, setEmotions] = useState<string[]>([])
+  const [lifePattern, setLifePattern] = useState<LifePatternType>(DEFAULT_LIFE_PATTERN)
+  const [patternScores, setPatternScores] = useState<Partial<Record<LifePatternDimension, number>>>({})
   const [highlight, setHighlight] = useState('')
   const [lowlight, setLowlight] = useState('')
   const [gratitude, setGratitude] = useState('')
@@ -27,6 +31,8 @@ export function DailyReflection() {
     setLoadedId(reflectionId)
     setMood(reflection?.mood ?? DEFAULT_MOOD)
     setEmotions(reflection?.emotions ?? [])
+    setLifePattern(reflection?.lifePattern ?? DEFAULT_LIFE_PATTERN)
+    setPatternScores(reflection?.patternScores ?? {})
     setHighlight(reflection?.highlight ?? '')
     setLowlight(reflection?.lowlight ?? '')
     setGratitude(reflection?.gratitude ?? '')
@@ -37,8 +43,12 @@ export function DailyReflection() {
     setEmotions((current) => (current.includes(id) ? current.filter((e) => e !== id) : [...current, id]))
   }
 
+  function setPatternScore(dimension: LifePatternDimension, value: number) {
+    setPatternScores((current) => ({ ...current, [dimension]: value }))
+  }
+
   function handleSave() {
-    saveTodaysReflection({ mood, emotions, highlight, lowlight, gratitude, notes })
+    saveTodaysReflection({ mood, emotions, lifePattern, patternScores, highlight, lowlight, gratitude, notes })
     setSaved(true)
     setTimeout(() => setSaved(false), 1500)
   }
@@ -50,6 +60,16 @@ export function DailyReflection() {
       <div className="flex flex-col gap-1.5">
         <Label>How are you feeling?</Label>
         <EmotionTags value={emotions} onToggle={toggleEmotion} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label>Life pattern</Label>
+        <LifePattern
+          pattern={lifePattern}
+          onPatternChange={setLifePattern}
+          scores={patternScores}
+          onScoreChange={setPatternScore}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">

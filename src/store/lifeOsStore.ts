@@ -13,6 +13,7 @@ import {
   type LifeObjectType,
   type RelationshipType,
   type ThreadEntry,
+  DEFAULT_LIFE_PATTERN,
 } from '@/lib/types'
 import { DEFAULT_MOOD } from '@/lib/mood-meta'
 
@@ -70,7 +71,12 @@ type LifeOsState = {
 
   getTodaysReflection: () => DailyReflection | undefined
   saveTodaysReflection: (
-    input: Partial<Pick<DailyReflection, 'highlight' | 'lowlight' | 'gratitude' | 'notes' | 'mood' | 'emotions'>>,
+    input: Partial<
+      Pick<
+        DailyReflection,
+        'highlight' | 'lowlight' | 'gratitude' | 'notes' | 'mood' | 'emotions' | 'lifePattern' | 'patternScores'
+      >
+    >,
   ) => void
 
   getTodaysEnergy: () => DailyEnergyLog | undefined
@@ -281,6 +287,8 @@ export const useLifeOsStore = create<LifeOsState>()(
             date,
             mood: input.mood ?? DEFAULT_MOOD,
             emotions: input.emotions ?? [],
+            lifePattern: input.lifePattern ?? DEFAULT_LIFE_PATTERN,
+            patternScores: input.patternScores ?? {},
             highlight: input.highlight ?? '',
             lowlight: input.lowlight ?? '',
             gratitude: input.gratitude ?? '',

@@ -72,6 +72,33 @@ export type ActivityHistoryEntry = {
   created_at: string
 }
 
+export const LIFE_PATTERNS = ['ideal', 'busy', 'lazy'] as const
+
+export type LifePatternType = (typeof LIFE_PATTERNS)[number]
+
+export const DEFAULT_LIFE_PATTERN: LifePatternType = 'ideal'
+
+export const LIFE_PATTERN_DIMENSIONS_LIST = [
+  'meditation',
+  'walk',
+  'work',
+  'spend',
+  'study',
+  'expression',
+  'relax',
+  'enjoy',
+  'entertainment',
+] as const
+
+export type LifePatternDimension = (typeof LIFE_PATTERN_DIMENSIONS_LIST)[number]
+
+/** Which sliders show up for each life pattern, in display order. */
+export const LIFE_PATTERN_DIMENSIONS: Record<LifePatternType, LifePatternDimension[]> = {
+  ideal: ['meditation', 'walk', 'work', 'spend', 'study', 'expression', 'relax', 'enjoy'],
+  busy: ['work', 'entertainment', 'expression', 'walk', 'study', 'spend'],
+  lazy: ['work', 'entertainment', 'walk', 'spend', 'expression', 'meditation'],
+}
+
 export type DailyReflection = {
   id: string
   date: string
@@ -79,6 +106,10 @@ export type DailyReflection = {
   mood: number
   /** Emotion tag ids felt during the day, e.g. "grateful", "anxious". */
   emotions: string[]
+  /** Which life pattern the day was closest to. */
+  lifePattern: LifePatternType
+  /** 0-10 score per dimension shown for the selected life pattern. */
+  patternScores: Partial<Record<LifePatternDimension, number>>
   highlight: string
   lowlight: string
   gratitude: string
