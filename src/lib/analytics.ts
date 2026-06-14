@@ -1,5 +1,13 @@
 import { differenceInCalendarDays, format } from 'date-fns'
-import { ENERGY_CATEGORIES, type ActivityHistoryEntry, type DailyEnergyLog, type EnergyCategory, type LifeObject, type LifeObjectRelationship } from './types'
+import {
+  ENERGY_CATEGORIES,
+  type ActivityHistoryEntry,
+  type DailyEnergyLog,
+  type DailyReflection,
+  type EnergyCategory,
+  type LifeObject,
+  type LifeObjectRelationship,
+} from './types'
 
 export type TopicCount = {
   tag: string
@@ -166,4 +174,28 @@ export function energyBreakdown(logs: DailyEnergyLog[]): EnergyCategoryAverage[]
     const total = logs.reduce((sum, log) => sum + log.spent[category], 0)
     return { category, average: logs.length > 0 ? total / logs.length : 0 }
   }).sort((a, b) => b.average - a.average)
+}
+
+export type MoodTrendDay = {
+  date: string
+  mood: number | null
+  emotions: string[]
+}
+
+/** Mood and emotions for the last `days` days, oldest first — entries without a reflection are null. */
+export function moodTrend(reflections: DailyReflection[], days = 7): MoodTrendDay[] {
+  const byDate = new Map(reflections.map((r) => [r.date, r]))
+
+  return Array.from({ length: days }, (_, i) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (days - 1 - i))
+    const key = date.toISOString().slice(0, 10)
+    const reflection = byDate.get(key)
+
+    return {
+      date: key,
+      mood: reflection?.mood ?? null,
+      emotions: reflection?.emotions ?? [],
+    }
+  })
 }

@@ -14,6 +14,7 @@ import {
   type RelationshipType,
   type ThreadEntry,
 } from '@/lib/types'
+import { DEFAULT_MOOD } from '@/lib/mood-meta'
 
 function createId(): string {
   return crypto.randomUUID()
@@ -68,7 +69,9 @@ type LifeOsState = {
   deleteThreadEntry: (id: string) => void
 
   getTodaysReflection: () => DailyReflection | undefined
-  saveTodaysReflection: (input: Partial<Pick<DailyReflection, 'highlight' | 'lowlight' | 'gratitude' | 'notes'>>) => void
+  saveTodaysReflection: (
+    input: Partial<Pick<DailyReflection, 'highlight' | 'lowlight' | 'gratitude' | 'notes' | 'mood' | 'emotions'>>,
+  ) => void
 
   getTodaysEnergy: () => DailyEnergyLog | undefined
   setEnergySpent: (category: EnergyCategory, amount: number) => void
@@ -276,6 +279,8 @@ export const useLifeOsStore = create<LifeOsState>()(
           const created: DailyReflection = {
             id: createId(),
             date,
+            mood: input.mood ?? DEFAULT_MOOD,
+            emotions: input.emotions ?? [],
             highlight: input.highlight ?? '',
             lowlight: input.lowlight ?? '',
             gratitude: input.gratitude ?? '',

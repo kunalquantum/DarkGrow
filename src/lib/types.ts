@@ -75,6 +75,10 @@ export type ActivityHistoryEntry = {
 export type DailyReflection = {
   id: string
   date: string
+  /** 1 (awful) to 5 (great) mood rating for the day. */
+  mood: number
+  /** Emotion tag ids felt during the day, e.g. "grateful", "anxious". */
+  emotions: string[]
   highlight: string
   lowlight: string
   gratitude: string

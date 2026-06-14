@@ -1,20 +1,33 @@
 import { Activity, CheckCircle2, Clock, Lightbulb, ListTodo, Target, Timer } from 'lucide-react'
 import { useLifeOsStore } from '@/store/lifeOsStore'
-import { buildInsightsSummary, energyBreakdown } from '@/lib/analytics'
+import { buildInsightsSummary, energyBreakdown, moodTrend } from '@/lib/analytics'
 import { ENERGY_CATEGORY_BUDGET } from '@/lib/types'
 import { ENERGY_CATEGORY_META } from '@/lib/energy-meta'
+import { moodForValue, EMOTION_TAGS } from '@/lib/mood-meta'
 import { StatCard } from '@/components/insights/stat-card'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { format } from 'date-fns'
 
 export default function InsightsPage() {
   const lifeObjects = useLifeOsStore((s) => s.lifeObjects)
   const relationships = useLifeOsStore((s) => s.relationships)
   const activityHistory = useLifeOsStore((s) => s.activityHistory)
   const dailyEnergyLogs = useLifeOsStore((s) => s.dailyEnergyLogs)
+  const dailyReflections = useLifeOsStore((s) => s.dailyReflections)
 
   const summary = buildInsightsSummary(lifeObjects, relationships, activityHistory)
   const energy = energyBreakdown(dailyEnergyLogs)
+  const mood = moodTrend(dailyReflections)
+  const moodEmotionCounts = new Map<string, number>()
+  for (const day of mood) {
+    for (const emotion of day.emotions) {
+      moodEmotionCounts.set(emotion, (moodEmotionCounts.get(emotion) ?? 0) + 1)
+    }
+  }
+  const topEmotions = Array.from(moodEmotionCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,6 +91,53 @@ export default function InsightsPage() {
                   #{topic.tag} · {topic.count}
                 </span>
               ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold text-muted-foreground">Mood this week</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {mood.every((day) => day.mood === null) ? (
+            <p className="text-sm text-muted-foreground">Log a daily reflection to see your mood trend here.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-end justify-between gap-1">
+                {mood.map((day) => {
+                  const level = day.mood !== null ? moodForValue(day.mood) : null
+                  return (
+                    <div key={day.date} className="flex flex-1 flex-col items-center gap-1.5">
+                      <span className={`text-2xl ${level ? '' : 'opacity-20'}`}>{level?.emoji ?? '—'}</span>
+                      <div
+                        className="w-full rounded-full"
+                        style={{
+                          height: level ? `${level.value * 8}px` : '2px',
+                          backgroundColor: level?.color ?? 'var(--color-border)',
+                          opacity: level ? 1 : 0.3,
+                        }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">{format(new Date(day.date), 'EEE')}</span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {topEmotions.length > 0 ? (
+                <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+                  {topEmotions.map(([id, count]) => {
+                    const emotion = EMOTION_TAGS.find((e) => e.id === id)
+                    if (!emotion) return null
+                    return (
+                      <span key={id} className="rounded-full border border-border bg-muted px-3 py-1 text-xs">
+                        {emotion.emoji} {emotion.label} · {count}
+                      </span>
+                    )
+                  })}
+                </div>
+              ) : null}
             </div>
           )}
         </CardContent>
