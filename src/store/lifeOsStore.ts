@@ -7,6 +7,7 @@ import {
   type DailyEnergyLog,
   type DailyReflection,
   type EnergyCategory,
+  type GoalStepLog,
   type LifeObject,
   type LifeObjectRelationship,
   type LifeObjectStatus,
@@ -16,13 +17,14 @@ import {
   DEFAULT_LIFE_PATTERN,
 } from '@/lib/types'
 import { DEFAULT_MOOD } from '@/lib/mood-meta'
+import { dateKey } from '@/lib/format'
 
 function createId(): string {
   return crypto.randomUUID()
 }
 
 function todayKey(): string {
-  return new Date().toISOString().slice(0, 10)
+  return dateKey()
 }
 
 export type NewLifeObjectInput = {
@@ -57,6 +59,7 @@ type LifeOsState = {
   dailyReflections: DailyReflection[]
   dailyEnergyLogs: DailyEnergyLog[]
   threadEntries: ThreadEntry[]
+  goalStepLogs: GoalStepLog[]
 
   quickCapture: (title: string, type?: LifeObjectType) => LifeObject
   createLifeObject: (input: NewLifeObjectInput) => LifeObject
@@ -82,13 +85,21 @@ type LifeOsState = {
   getTodaysEnergy: () => DailyEnergyLog | undefined
   setEnergySpent: (category: EnergyCategory, amount: number) => void
 
+  logGoalStep: (goalId: string, note?: string) => void
+
   exportData: () => LifeOsData
   importData: (data: Partial<LifeOsData>) => void
 }
 
 export type LifeOsData = Pick<
   LifeOsState,
-  'lifeObjects' | 'relationships' | 'activityHistory' | 'dailyReflections' | 'dailyEnergyLogs' | 'threadEntries'
+  | 'lifeObjects'
+  | 'relationships'
+  | 'activityHistory'
+  | 'dailyReflections'
+  | 'dailyEnergyLogs'
+  | 'threadEntries'
+  | 'goalStepLogs'
 >
 
 function logActivity(
@@ -116,6 +127,7 @@ export const useLifeOsStore = create<LifeOsState>()(
       dailyReflections: [],
       dailyEnergyLogs: [],
       threadEntries: [],
+      goalStepLogs: [],
 
       quickCapture: (title, type = 'note') => {
         return get().createLifeObject({ type, title })
@@ -343,6 +355,34 @@ export const useLifeOsStore = create<LifeOsState>()(
         })
       },
 
+      logGoalStep: (goalId, note = '') => {
+        set((state) => {
+          const date = todayKey()
+          if (state.goalStepLogs.some((log) => log.goal_id === goalId && log.date === date)) {
+            return state
+          }
+
+          const entry: GoalStepLog = {
+            id: createId(),
+            goal_id: goalId,
+            date,
+            note: note.trim(),
+            created_at: new Date().toISOString(),
+          }
+
+          const goal = state.lifeObjects.find((o) => o.id === goalId)
+          return {
+            goalStepLogs: [entry, ...state.goalStepLogs],
+            activityHistory: logActivity(
+              state.activityHistory,
+              goalId,
+              'note_added',
+              `Logged today's step toward "${goal?.title ?? 'a goal'}"`,
+            ),
+          }
+        })
+      },
+
       exportData: () => {
         const state = get()
         return {
@@ -352,6 +392,7 @@ export const useLifeOsStore = create<LifeOsState>()(
           dailyReflections: state.dailyReflections,
           dailyEnergyLogs: state.dailyEnergyLogs,
           threadEntries: state.threadEntries,
+          goalStepLogs: state.goalStepLogs,
         }
       },
 
@@ -363,6 +404,7 @@ export const useLifeOsStore = create<LifeOsState>()(
           dailyReflections: data.dailyReflections ?? state.dailyReflections,
           dailyEnergyLogs: data.dailyEnergyLogs ?? state.dailyEnergyLogs,
           threadEntries: data.threadEntries ?? state.threadEntries,
+          goalStepLogs: data.goalStepLogs ?? state.goalStepLogs,
         }))
       },
     }),

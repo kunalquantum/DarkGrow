@@ -31,3 +31,8 @@ export function groupLabel(isoDate: string): string {
 export function dayLabel(isoDate: string): string {
   return format(new Date(isoDate), 'EEEE, MMMM d')
 }
+
+/** YYYY-MM-DD key for a date, used to group records by day. */
+export function dateKey(date: Date = new Date()): string {
+  return date.toISOString().slice(0, 10)
+}

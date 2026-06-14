@@ -144,3 +144,12 @@ export type ThreadEntry = {
   created_at: string
 }
 
+/** A small step logged toward a goal on a given day. */
+export type GoalStepLog = {
+  id: string
+  goal_id: string
+  date: string
+  note: string
+  created_at: string
+}
+
