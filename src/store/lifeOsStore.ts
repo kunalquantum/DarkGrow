@@ -81,7 +81,15 @@ type LifeOsState = {
 
   getTodaysEnergy: () => DailyEnergyLog | undefined
   setEnergySpent: (category: EnergyCategory, amount: number) => void
+
+  exportData: () => LifeOsData
+  importData: (data: Partial<LifeOsData>) => void
 }
+
+export type LifeOsData = Pick<
+  LifeOsState,
+  'lifeObjects' | 'relationships' | 'activityHistory' | 'dailyReflections' | 'dailyEnergyLogs' | 'threadEntries'
+>
 
 function logActivity(
   history: ActivityHistoryEntry[],
@@ -333,6 +341,29 @@ export const useLifeOsStore = create<LifeOsState>()(
 
           return { dailyEnergyLogs: [created, ...state.dailyEnergyLogs] }
         })
+      },
+
+      exportData: () => {
+        const state = get()
+        return {
+          lifeObjects: state.lifeObjects,
+          relationships: state.relationships,
+          activityHistory: state.activityHistory,
+          dailyReflections: state.dailyReflections,
+          dailyEnergyLogs: state.dailyEnergyLogs,
+          threadEntries: state.threadEntries,
+        }
+      },
+
+      importData: (data) => {
+        set((state) => ({
+          lifeObjects: data.lifeObjects ?? state.lifeObjects,
+          relationships: data.relationships ?? state.relationships,
+          activityHistory: data.activityHistory ?? state.activityHistory,
+          dailyReflections: data.dailyReflections ?? state.dailyReflections,
+          dailyEnergyLogs: data.dailyEnergyLogs ?? state.dailyEnergyLogs,
+          threadEntries: data.threadEntries ?? state.threadEntries,
+        }))
       },
     }),
     { name: 'life-os-storage' },

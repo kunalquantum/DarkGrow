@@ -1,12 +1,16 @@
 import { differenceInCalendarDays, format } from 'date-fns'
 import {
   ENERGY_CATEGORIES,
+  LIFE_PATTERN_DIMENSIONS_LIST,
+  LIFE_PATTERNS,
   type ActivityHistoryEntry,
   type DailyEnergyLog,
   type DailyReflection,
   type EnergyCategory,
   type LifeObject,
   type LifeObjectRelationship,
+  type LifePatternDimension,
+  type LifePatternType,
 } from './types'
 
 export type TopicCount = {
@@ -198,4 +202,45 @@ export function moodTrend(reflections: DailyReflection[], days = 7): MoodTrendDa
       emotions: reflection?.emotions ?? [],
     }
   })
+}
+
+/** How many logged days were closest to each life pattern. */
+export function lifePatternDistribution(reflections: DailyReflection[]): Record<LifePatternType, number> {
+  const counts: Record<LifePatternType, number> = { ideal: 0, busy: 0, lazy: 0 }
+  for (const reflection of reflections) {
+    counts[reflection.lifePattern] += 1
+  }
+  return counts
+}
+
+export type PatternDimensionAverage = {
+  dimension: LifePatternDimension
+  average: number
+  days: number
+}
+
+/** Average 0-10 score per life-pattern dimension across all days it was logged, highest first. */
+export function patternDimensionAverages(reflections: DailyReflection[]): PatternDimensionAverage[] {
+  return LIFE_PATTERN_DIMENSIONS_LIST.map((dimension) => {
+    const scores = reflections
+      .map((r) => r.patternScores[dimension])
+      .filter((value): value is number => typeof value === 'number')
+
+    const average = scores.length > 0 ? scores.reduce((sum, value) => sum + value, 0) / scores.length : 0
+    return { dimension, average, days: scores.length }
+  })
+    .filter((entry) => entry.days > 0)
+    .sort((a, b) => b.average - a.average)
+}
+
+/** Average mood for days logged under each life pattern, where available. */
+export function moodByLifePattern(reflections: DailyReflection[]): Record<LifePatternType, number | null> {
+  const result: Record<LifePatternType, number | null> = { ideal: null, busy: null, lazy: null }
+
+  for (const pattern of LIFE_PATTERNS) {
+    const moods = reflections.filter((r) => r.lifePattern === pattern).map((r) => r.mood)
+    result[pattern] = moods.length > 0 ? moods.reduce((sum, value) => sum + value, 0) / moods.length : null
+  }
+
+  return result
 }

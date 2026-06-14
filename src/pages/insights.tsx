@@ -1,10 +1,19 @@
 import { Activity, CheckCircle2, Clock, Lightbulb, ListTodo, Target, Timer } from 'lucide-react'
 import { useLifeOsStore } from '@/store/lifeOsStore'
-import { buildInsightsSummary, energyBreakdown, moodTrend } from '@/lib/analytics'
-import { ENERGY_CATEGORY_BUDGET } from '@/lib/types'
+import {
+  buildInsightsSummary,
+  energyBreakdown,
+  lifePatternDistribution,
+  moodByLifePattern,
+  moodTrend,
+  patternDimensionAverages,
+} from '@/lib/analytics'
+import { ENERGY_CATEGORY_BUDGET, LIFE_PATTERNS } from '@/lib/types'
 import { ENERGY_CATEGORY_META } from '@/lib/energy-meta'
 import { moodForValue, EMOTION_TAGS } from '@/lib/mood-meta'
+import { LIFE_PATTERN_META, LIFE_PATTERN_DIMENSION_META } from '@/lib/life-pattern-meta'
 import { StatCard } from '@/components/insights/stat-card'
+import { DataExport } from '@/components/insights/data-export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { format } from 'date-fns'
@@ -28,6 +37,11 @@ export default function InsightsPage() {
   const topEmotions = Array.from(moodEmotionCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
+
+  const patternDistribution = lifePatternDistribution(dailyReflections)
+  const totalPatternDays = dailyReflections.length
+  const dimensionAverages = patternDimensionAverages(dailyReflections)
+  const moodByPattern = moodByLifePattern(dailyReflections)
 
   return (
     <div className="flex flex-col gap-6">
@@ -145,6 +159,65 @@ export default function InsightsPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle className="text-sm font-semibold text-muted-foreground">Life patterns</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {totalPatternDays === 0 ? (
+            <p className="text-sm text-muted-foreground">Log a daily reflection to see your life patterns here.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
+                {LIFE_PATTERNS.map((pattern) => {
+                  const meta = LIFE_PATTERN_META[pattern]
+                  const count = patternDistribution[pattern]
+                  const avgMood = moodByPattern[pattern]
+                  return (
+                    <div key={pattern} className="flex items-center gap-3">
+                      <span className="w-24 shrink-0 text-xs">
+                        {meta.emoji} {meta.label}
+                      </span>
+                      <div className="flex-1">
+                        <div className="mb-1 flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">{count} day{count === 1 ? '' : 's'}</span>
+                          <span className="text-muted-foreground">
+                            {avgMood !== null ? `avg mood ${avgMood.toFixed(1)}/5` : '—'}
+                          </span>
+                        </div>
+                        <Progress value={totalPatternDays > 0 ? (count / totalPatternDays) * 100 : 0} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {dimensionAverages.length > 0 ? (
+                <div className="flex flex-col gap-3 border-t border-border pt-3">
+                  {dimensionAverages.map(({ dimension, average, days }) => {
+                    const meta = LIFE_PATTERN_DIMENSION_META[dimension]
+                    return (
+                      <div key={dimension} className="flex items-center gap-3">
+                        <span className="w-28 shrink-0 text-xs">
+                          {meta.emoji} {meta.label}
+                        </span>
+                        <div className="flex-1">
+                          <div className="mb-1 flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">{average.toFixed(1)} / 10 avg</span>
+                            <span className="text-muted-foreground">{days} day{days === 1 ? '' : 's'}</span>
+                          </div>
+                          <Progress value={(average / 10) * 100} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle className="text-sm font-semibold text-muted-foreground">Where your energy goes</CardTitle>
         </CardHeader>
         <CardContent>
@@ -193,6 +266,15 @@ export default function InsightsPage() {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold text-muted-foreground">Your data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataExport />
         </CardContent>
       </Card>
     </div>
