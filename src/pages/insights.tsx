@@ -11,7 +11,7 @@ import {
 import { ENERGY_CATEGORY_BUDGET, LIFE_PATTERNS } from '@/lib/types'
 import { ENERGY_CATEGORY_META } from '@/lib/energy-meta'
 import { moodForValue, EMOTION_TAGS } from '@/lib/mood-meta'
-import { LIFE_PATTERN_META, LIFE_PATTERN_DIMENSION_META } from '@/lib/life-pattern-meta'
+import { LIFE_PATTERN_META, LIFE_PATTERN_DIMENSION_META, formatDimensionValue } from '@/lib/life-pattern-meta'
 import { StatCard } from '@/components/insights/stat-card'
 import { DataExport } from '@/components/insights/data-export'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -201,10 +201,10 @@ export default function InsightsPage() {
                         </span>
                         <div className="flex-1">
                           <div className="mb-1 flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">{average.toFixed(1)} / 10 avg</span>
+                            <span className="text-muted-foreground">{formatDimensionValue(dimension, average)} avg</span>
                             <span className="text-muted-foreground">{days} day{days === 1 ? '' : 's'}</span>
                           </div>
-                          <Progress value={(average / 10) * 100} />
+                          <Progress value={Math.min(100, (average / meta.max) * 100)} />
                         </div>
                       </div>
                     )

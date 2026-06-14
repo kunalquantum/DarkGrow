@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Slider } from '@/components/ui/slider'
+import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import {
   LIFE_PATTERNS,
@@ -7,7 +8,14 @@ import {
   type LifePatternDimension,
   type LifePatternType,
 } from '@/lib/types'
-import { LIFE_PATTERN_META, LIFE_PATTERN_DIMENSION_META } from '@/lib/life-pattern-meta'
+import {
+  LIFE_PATTERN_META,
+  LIFE_PATTERN_DIMENSION_META,
+  formatDimensionValue,
+  dimensionHours,
+} from '@/lib/life-pattern-meta'
+
+const HOURS_IN_DAY = 24
 
 export function LifePattern({
   pattern,
@@ -22,6 +30,8 @@ export function LifePattern({
 }) {
   const dimensions = LIFE_PATTERN_DIMENSIONS[pattern]
   const meta = LIFE_PATTERN_META[pattern]
+
+  const totalHours = dimensions.reduce((sum, dimension) => sum + dimensionHours(dimension, scores[dimension] ?? 0), 0)
 
   return (
     <div className="flex flex-col gap-3">
@@ -64,12 +74,12 @@ export function LifePattern({
                   <span>{dimensionMeta.emoji}</span>
                   {dimensionMeta.label}
                 </span>
-                <span className="text-muted-foreground">{value} / 10</span>
+                <span className="text-muted-foreground">{formatDimensionValue(dimension, value)}</span>
               </div>
               <Slider
                 min={0}
-                max={10}
-                step={1}
+                max={dimensionMeta.max}
+                step={dimensionMeta.step}
                 value={value}
                 onChange={(e) => onScoreChange(dimension, Number(e.target.value))}
                 style={{ accentColor: meta.color }}
@@ -78,6 +88,16 @@ export function LifePattern({
             </div>
           )
         })}
+      </div>
+
+      <div className="flex flex-col gap-1.5 border-t border-border pt-3">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Time tracked today</span>
+          <span className="text-muted-foreground">
+            {totalHours.toFixed(1)} / {HOURS_IN_DAY} hrs
+          </span>
+        </div>
+        <Progress value={Math.min(100, (totalHours / HOURS_IN_DAY) * 100)} />
       </div>
     </div>
   )
