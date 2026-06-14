@@ -7,14 +7,14 @@ import { useLifeOsStore } from '@/store/lifeOsStore'
 import { relativeTime } from '@/lib/format'
 
 export function ObjectThread({ objectId }: { objectId: string }) {
-  const entries = useLifeOsStore((s) => s.threadEntries.filter((entry) => entry.object_id === objectId))
+  const threadEntries = useLifeOsStore((s) => s.threadEntries)
   const addThreadEntry = useLifeOsStore((s) => s.addThreadEntry)
   const deleteThreadEntry = useLifeOsStore((s) => s.deleteThreadEntry)
   const [content, setContent] = useState('')
 
-  const sorted = [...entries].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )
+  const sorted = threadEntries
+    .filter((entry) => entry.object_id === objectId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   function handleSubmit() {
     const trimmed = content.trim()
