@@ -7,6 +7,7 @@ import { useLifeOsStore } from '@/store/lifeOsStore'
 import { ObjectEditor } from '@/components/object/object-editor'
 import { RelationshipsPanel } from '@/components/object/relationships-panel'
 import { ActivityLog } from '@/components/object/activity-log'
+import { ObjectThread } from '@/components/object/object-thread'
 
 export default function ObjectDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -44,6 +45,15 @@ export default function ObjectDetailPage() {
       </header>
 
       <ObjectEditor object={object} key={object.id} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold text-muted-foreground">Thread</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ObjectThread objectId={object.id} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

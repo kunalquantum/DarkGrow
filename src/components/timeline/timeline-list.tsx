@@ -1,6 +1,7 @@
 import { useLifeOsStore } from '@/store/lifeOsStore'
 import { groupLabel } from '@/lib/format'
 import { LifeObjectRow } from '@/components/shared/life-object-row'
+import { StaggerList, StaggerItem } from '@/components/shared/stagger-list'
 
 export function TimelineList() {
   const lifeObjects = useLifeOsStore((s) => s.lifeObjects)
@@ -33,11 +34,13 @@ export function TimelineList() {
       {groups.map((group) => (
         <div key={group.label} className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold text-muted-foreground">{group.label}</h2>
-          <div className="flex flex-col gap-2">
+          <StaggerList className="flex flex-col gap-2">
             {group.objects.map((object) => (
-              <LifeObjectRow key={object.id} object={object} />
+              <StaggerItem key={object.id}>
+                <LifeObjectRow object={object} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerList>
         </div>
       ))}
     </div>

@@ -12,6 +12,7 @@ import {
   type LifeObjectStatus,
   type LifeObjectType,
   type RelationshipType,
+  type ThreadEntry,
 } from '@/lib/types'
 
 function createId(): string {
@@ -53,6 +54,7 @@ type LifeOsState = {
   activityHistory: ActivityHistoryEntry[]
   dailyReflections: DailyReflection[]
   dailyEnergyLogs: DailyEnergyLog[]
+  threadEntries: ThreadEntry[]
 
   quickCapture: (title: string, type?: LifeObjectType) => LifeObject
   createLifeObject: (input: NewLifeObjectInput) => LifeObject
@@ -61,6 +63,9 @@ type LifeOsState = {
 
   createRelationship: (input: NewRelationshipInput) => LifeObjectRelationship
   deleteRelationship: (id: string) => void
+
+  addThreadEntry: (objectId: string, content: string) => ThreadEntry
+  deleteThreadEntry: (id: string) => void
 
   getTodaysReflection: () => DailyReflection | undefined
   saveTodaysReflection: (input: Partial<Pick<DailyReflection, 'highlight' | 'lowlight' | 'gratitude' | 'notes'>>) => void
@@ -93,6 +98,7 @@ export const useLifeOsStore = create<LifeOsState>()(
       activityHistory: [],
       dailyReflections: [],
       dailyEnergyLogs: [],
+      threadEntries: [],
 
       quickCapture: (title, type = 'note') => {
         return get().createLifeObject({ type, title })
@@ -175,6 +181,7 @@ export const useLifeOsStore = create<LifeOsState>()(
             relationships: state.relationships.filter(
               (r) => r.source_id !== id && r.target_id !== id,
             ),
+            threadEntries: state.threadEntries.filter((t) => t.object_id !== id),
             activityHistory: logActivity(
               state.activityHistory,
               id,
@@ -225,6 +232,28 @@ export const useLifeOsStore = create<LifeOsState>()(
             ),
           }
         })
+      },
+
+      addThreadEntry: (objectId, content) => {
+        const entry: ThreadEntry = {
+          id: createId(),
+          object_id: objectId,
+          content: content.trim(),
+          created_at: new Date().toISOString(),
+        }
+
+        set((state) => ({
+          threadEntries: [entry, ...state.threadEntries],
+          activityHistory: logActivity(state.activityHistory, objectId, 'note_added', 'Added a thread update'),
+        }))
+
+        return entry
+      },
+
+      deleteThreadEntry: (id) => {
+        set((state) => ({
+          threadEntries: state.threadEntries.filter((entry) => entry.id !== id),
+        }))
       },
 
       getTodaysReflection: () => {

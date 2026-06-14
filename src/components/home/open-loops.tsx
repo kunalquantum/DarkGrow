@@ -1,6 +1,7 @@
 import { useLifeOsStore } from '@/store/lifeOsStore'
 import { openLoops } from '@/lib/analytics'
 import { LifeObjectRow } from '@/components/shared/life-object-row'
+import { StaggerList, StaggerItem } from '@/components/shared/stagger-list'
 
 export function OpenLoops() {
   const objects = useLifeOsStore((s) => s.lifeObjects)
@@ -15,10 +16,12 @@ export function OpenLoops() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <StaggerList className="flex flex-col gap-2">
       {loops.map((object) => (
-        <LifeObjectRow key={object.id} object={object} />
+        <StaggerItem key={object.id}>
+          <LifeObjectRow object={object} />
+        </StaggerItem>
       ))}
-    </div>
+    </StaggerList>
   )
 }

@@ -8,7 +8,9 @@ export default function HomePage() {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h1 className="text-2xl font-semibold">Life OS</h1>
+        <h1 className="bg-gradient-to-r from-accent to-foreground bg-clip-text text-2xl font-semibold text-transparent">
+          Life OS
+        </h1>
         <p className="text-sm text-muted-foreground">Capture everything. Forget nothing.</p>
       </header>
 

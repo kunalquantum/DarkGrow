@@ -3,6 +3,7 @@ import { SearchIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useLifeOsStore, searchLifeObjects } from '@/store/lifeOsStore'
 import { LifeObjectRow } from '@/components/shared/life-object-row'
+import { StaggerList, StaggerItem } from '@/components/shared/stagger-list'
 
 export function SearchView() {
   const [query, setQuery] = useState('')
@@ -31,11 +32,13 @@ export function SearchView() {
           No matches for "{query}".
         </p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <StaggerList className="flex flex-col gap-2">
           {results.map((object) => (
-            <LifeObjectRow key={object.id} object={object} />
+            <StaggerItem key={object.id}>
+              <LifeObjectRow object={object} />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
     </div>
   )

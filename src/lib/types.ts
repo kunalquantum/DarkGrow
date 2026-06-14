@@ -101,3 +101,11 @@ export type DailyEnergyLog = {
   updated_at: string
 }
 
+/** A single entry in an object's running thread — its own log of thoughts and updates over time. */
+export type ThreadEntry = {
+  id: string
+  object_id: string
+  content: string
+  created_at: string
+}
+

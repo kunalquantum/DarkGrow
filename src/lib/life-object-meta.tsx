@@ -53,6 +53,20 @@ export const STATUS_META: Record<LifeObjectStatus, StatusMeta> = {
   archived: { label: 'Archived', icon: Archive, color: 'text-muted-foreground' },
 }
 
+/** Contextual prompts to encourage capturing more useful detail per object type. */
+export const TYPE_CAPTURE_PROMPTS: Record<LifeObjectType, string> = {
+  idea: 'What is the idea, and why does it matter?',
+  project: 'What are you building, and what does done look like?',
+  goal: 'What does success look like, and by when?',
+  learning: 'What did you learn, and how might you use it?',
+  decision: 'What are you deciding, and what are the options?',
+  reflection: 'What happened, and how did it feel?',
+  achievement: 'What did you accomplish, and what made it possible?',
+  event: 'What happened, when, and with whom?',
+  habit: 'What are you building, and how often?',
+  note: 'Anything else worth remembering...',
+}
+
 export function typeLabel(type: LifeObjectType): string {
   return TYPE_META[type].label
 }
