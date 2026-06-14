@@ -6,6 +6,7 @@ import TimelinePage from '@/pages/timeline'
 import InsightsPage from '@/pages/insights'
 import SearchPage from '@/pages/search'
 import ObjectDetailPage from '@/pages/object-detail'
+import JournalPage from '@/pages/journal'
 
 function App() {
   const location = useLocation()
@@ -25,6 +26,7 @@ function App() {
             <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/journal" element={<JournalPage />} />
             <Route path="/object/:id" element={<ObjectDetailPage />} />
           </Routes>
         </motion.div>

@@ -1,16 +1,43 @@
 import { useState } from 'react'
-import { Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { format } from 'date-fns'
+import { ArrowLeft, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useLifeOsStore } from '@/store/lifeOsStore'
-import { DEFAULT_MOOD } from '@/lib/mood-meta'
+import { DEFAULT_MOOD, moodForValue } from '@/lib/mood-meta'
 import { DEFAULT_LIFE_PATTERN, type LifePatternDimension, type LifePatternType } from '@/lib/types'
 import { MoodSlider } from '@/components/home/mood-slider'
 import { EmotionTags } from '@/components/home/emotion-tags'
 import { LifePattern } from '@/components/home/life-pattern'
 
-export function DailyReflection() {
+function JournalField({
+  label,
+  prompt,
+  value,
+  onChange,
+}: {
+  label: string
+  prompt: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</span>
+      <Textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={prompt}
+        className="min-h-32 resize-none border-0 bg-transparent p-0 font-journal text-2xl leading-8 text-stone-800 shadow-none outline-none placeholder:text-stone-400 focus-visible:ring-0"
+      />
+    </div>
+  )
+}
+
+export default function JournalPage() {
+  const navigate = useNavigate()
   const reflection = useLifeOsStore((s) => s.dailyReflections.find((r) => r.date === new Date().toISOString().slice(0, 10)))
   const saveTodaysReflection = useLifeOsStore((s) => s.saveTodaysReflection)
 
@@ -53,8 +80,34 @@ export function DailyReflection() {
     setTimeout(() => setSaved(false), 1500)
   }
 
+  const moodMeta = moodForValue(mood)
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
+      <header className="flex items-center gap-2">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
+          <ArrowLeft className="size-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl font-semibold">Journal</h1>
+          <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
+        </div>
+      </header>
+
+      <div className="paper flex flex-col gap-5 rounded-2xl border border-border/40 p-5 shadow-xl shadow-black/30">
+        <div>
+          <p className="font-journal text-4xl leading-tight">{format(new Date(), 'EEEE, MMMM d')}</p>
+          <p className="font-journal text-xl italic text-stone-500">
+            Dear diary, today felt {moodMeta.emoji} {moodMeta.label.toLowerCase()}...
+          </p>
+        </div>
+
+        <JournalField label="Highlight of the day" prompt="What went well?" value={highlight} onChange={setHighlight} />
+        <JournalField label="Lowlight of the day" prompt="What was difficult?" value={lowlight} onChange={setLowlight} />
+        <JournalField label="Grateful for" prompt="What are you grateful for?" value={gratitude} onChange={setGratitude} />
+        <JournalField label="Notes" prompt="Anything else on your mind?" value={notes} onChange={setNotes} />
+      </div>
+
       <MoodSlider value={mood} onChange={setMood} />
 
       <div className="flex flex-col gap-1.5">
@@ -72,49 +125,9 @@ export function DailyReflection() {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="highlight">Highlight of the day</Label>
-        <Textarea
-          id="highlight"
-          value={highlight}
-          onChange={(e) => setHighlight(e.target.value)}
-          placeholder="What went well?"
-          className="min-h-16"
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="lowlight">Lowlight of the day</Label>
-        <Textarea
-          id="lowlight"
-          value={lowlight}
-          onChange={(e) => setLowlight(e.target.value)}
-          placeholder="What was difficult?"
-          className="min-h-16"
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="gratitude">Grateful for</Label>
-        <Textarea
-          id="gratitude"
-          value={gratitude}
-          onChange={(e) => setGratitude(e.target.value)}
-          placeholder="What are you grateful for?"
-          className="min-h-16"
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Anything else on your mind?"
-          className="min-h-16"
-        />
-      </div>
       <Button onClick={handleSave} variant="accent" className="self-start">
         {saved ? <Check className="size-4" /> : null}
-        {saved ? 'Saved' : 'Save reflection'}
+        {saved ? 'Saved' : 'Save entry'}
       </Button>
     </div>
   )

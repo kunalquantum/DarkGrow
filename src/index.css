@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-journal: 'Caveat', cursive;
 
   --color-background: #0a0a0a;
   --color-foreground: #f5f5f5;
@@ -60,5 +61,15 @@
 
   .scrollbar-none {
     scrollbar-width: none;
+  }
+
+  .paper {
+    color: #4a3f35;
+    background-color: #f8f1e1;
+    background-image:
+      linear-gradient(to right, transparent 0 38px, rgba(220, 38, 38, 0.28) 38px 40px, transparent 40px),
+      repeating-linear-gradient(to bottom, transparent 0 31px, rgba(120, 108, 90, 0.22) 31px 32px);
+    background-size: 100% 100%, 100% 32px;
+    background-position: 0 0, 0 4px;
   }
 }

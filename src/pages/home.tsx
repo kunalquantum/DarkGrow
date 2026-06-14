@@ -1,7 +1,7 @@
 import { QuickCapture } from '@/components/home/quick-capture'
 import { OpenLoops } from '@/components/home/open-loops'
 import { RecentActivity } from '@/components/home/recent-activity'
-import { DailyReflection } from '@/components/home/daily-reflection'
+import { JournalEntry } from '@/components/home/journal-entry'
 import { EnergyTracker } from '@/components/home/energy-tracker'
 
 export default function HomePage() {
@@ -34,8 +34,8 @@ export default function HomePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold text-muted-foreground">Daily reflection</h2>
-        <DailyReflection />
+        <h2 className="text-sm font-semibold text-muted-foreground">Journal</h2>
+        <JournalEntry />
       </section>
     </div>
   )
